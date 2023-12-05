@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube API Example</title>
+</head>
+<body>
+    <h1>YouTube API Example</h1>
+
+    <form id="searchForm">
+        <label for="searchQuery">検索クエリ：</label>
+        <input type="text" id="searchQuery" name="searchQuery" required>
+        
+        <label for="maxResults">表示する動画数：</label>
+        <input type="number" id="maxResults" name="maxResults" value="5" min="1" max="15" required>
+        
+        <button type="submit">検索</button>
+    </form>
+
+    <div id="videos"></div>
+
+    <script>
+        // YouTube Data APIのAPIキー
+        const apiKey = 'AIzaSyA2MJj0_5XWIoNn7FheVGVQqOpvlIUzAaw';
+
+        // フォーム送信時の処理
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // フォームから検索クエリと表示する動画数を取得
+            const searchQuery = document.getElementById('searchQuery').value;
+            const maxResults = document.getElementById('maxResults').value;
+
+            // YouTube Data APIを使用して動画を検索
+            searchYouTube(searchQuery, maxResults);
+        });
+
+        // YouTube Data APIを使用して動画を検索
+        function searchYouTube(query, maxResults) {
+            const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=${maxResults}&key=${apiKey}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    // APIからの応答を処理
+                    displayVideos(data.items);
+                })
+                .catch(error => {
+                    console.error('Error loading videos:', error);
+                });
+        }
+
+        // 動画を表示
+        function displayVideos(videos) {
+            const videosContainer = document.getElementById('videos');
+            videosContainer.innerHTML = ''; // 前回の結果をクリア
+
+            videos.forEach(video => {
+                const title = video.snippet.title;
+                const videoId = video.id.videoId;
+                const iframe = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                videosContainer.innerHTML += `<p>${title}</p>${iframe}<hr>`;
+            });
+        }
+    </script>
+</body>
+</html>
